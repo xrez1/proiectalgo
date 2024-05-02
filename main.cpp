@@ -2,9 +2,7 @@
 #include <iomanip>
 #include <string>
 #include <fstream>
-#include <format>
 #include <vector>
-#include <display.h>
 using namespace std;
 
 /*
@@ -33,8 +31,8 @@ fstream dataFile;
 
 struct CD {
     int id = -1;
-    string prod = NULL;
-    string name = NULL;
+    string prod = "null";
+    string name = "null";
     double sizeMB = 0;
     double price = 0;
 
@@ -63,20 +61,11 @@ void readLinkedList(CD* cd) {
 
 }
 
-void dispalyLinkedList(CD* cd) {
-    CD* curr = cd->head;
-    CD* past = cd->head;
 
 
-    while (curr->next != nullptr) {
-        past = curr;
-        curr = curr->next;
-    }
-}
-
-
-void loadData() {
+CD* loadData() {
     dataFile.open("data.txt");
+    CD* newCD = new CD;
     
     string stg;
 
@@ -86,45 +75,49 @@ void loadData() {
     float sizeMB;
     float price;
 
-    while (dataFile){
-        for (int i = 0; i < 6; i++) {
-            CD* newCD = new CD;
+    while (!dataFile.eof()){
+        streamsize maxChar = 256; 
+        char* line = new char[maxChar];
+        char delimChar = ';';
 
-            streamsize maxChar = 256; 
-            char* line = new char[maxChar];
-            char delimChar = ';';
+        // ID
+        dataFile.getline(line, maxChar, delimChar);
+        cout << line << endl;
+        id = stoi(line);
 
-            switch (i){
-            case 0:                         // ID
-                dataFile.getline(line, maxChar, delimChar);
-                id = stoi(line);
-            case 1:                         // PRODUCATOR
-                dataFile.getline(line, maxChar, delimChar);
-                prod = line;
-            case 2:                         // NUME CD
-                dataFile.getline(line, maxChar, delimChar);
-                name = line;
-            case 3:                         // MARIME MB
-                dataFile.getline(line, maxChar, delimChar);
-                sizeMB = stof(line);
-            case 4:                         // PRET
-                dataFile.getline(line, maxChar, delimChar);
-                price = stof(line);
-            case 5:                         // CREAZA OBIECT
-                newCD->id = id;
-                newCD->prod = prod;
-                newCD->name = name;
-                newCD->sizeMB = sizeMB;
-                newCD->price = price;
+        // PRODUCATOR
+        dataFile.getline(line, maxChar, delimChar);
+        cout << line << endl;
+        prod = line;
 
-                addToLinkedList(newCD);
-                delete[] line;
-                dataFile.close();
-            default:
-                break;
-            }
-        }
+        // NUME CD
+        dataFile.getline(line, maxChar, delimChar);
+        cout << line << endl;
+        name = line;
+
+        // MARIME MB
+        dataFile.getline(line, maxChar, delimChar);
+        cout << line << endl;
+        sizeMB = stof(line);
+
+        // PRET
+        dataFile.getline(line, maxChar, delimChar);
+        cout << line << endl;
+        price = stof(line);
+
+        // CREAZA OBIECT
+        newCD->id = id;
+        newCD->prod = prod;
+        newCD->name = name;
+        newCD->sizeMB = sizeMB;
+        newCD->price = price;
+
+        addToLinkedList(newCD);
+        delete[] line;
     }
+
+    dataFile.close();
+    return newCD;
 }
 
 void storeData(CD cd) {
@@ -132,6 +125,17 @@ void storeData(CD cd) {
     // scrie date la sfarsitul fisierului sub formatul : 0;x;x;1024;50;
     dataFile << cd.id << ";" << cd.prod << ";" << cd.name << ";" << cd.sizeMB << ";" << cd.price << ";";
     dataFile.close();
+}
+
+void dispalyLinkedList(CD* cd) {
+    CD* curr = cd->head;
+    CD* past = cd->head;
+
+
+    while (curr->next != nullptr) {
+        past = curr;
+        curr = curr->next;
+    }
 }
 
 void displayMain() {
@@ -152,6 +156,7 @@ void displayMain() {
 
 int main()
 {
+    CD* cdData = loadData();
     displayMain();
 }
 
