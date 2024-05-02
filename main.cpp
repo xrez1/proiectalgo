@@ -23,11 +23,18 @@ o functie pentru fiecare dintre urmatoarele prob.
 
 fstream dataFile;
 
+//Defines for table dispaly widths
 #define FIELD1W  10
-#define FIELD2W  256
-#define FIELD3W  256
+#define FIELD2W  50
+#define FIELD3W  50
 #define FIELD4W  10
 #define FIELD5W  10
+
+/*
+
+            CD OBJ
+
+*/
 
 struct CD {
     int id = -1;
@@ -41,91 +48,92 @@ struct CD {
     CD* next = nullptr;
 };
 
-void addToLinkedList(CD* cd) {
-    if (cd->head == nullptr) {
-        cd->head = cd;
+void addToLinkedList(CD* root, CD* cd) {
+    CD* curr = root;
+    CD* past = root;
+    if (root->head != root) {
+        root->head = root;
     }
-    else {
-        CD* curr = cd->head;
-        CD* past = cd->head;
-        while (curr->next != nullptr) {
-            past = curr;
-            curr = curr->next;
-        }
-        curr->next = cd;
-        curr->prev = past;
+    if (cd->head != root) {
+        cd->head = root;
     }
+
+    while (curr->next != nullptr) {
+        past = curr;
+        curr = curr->next;
+    }
+
+    curr->next = cd;
+    curr->prev = past;
+   
 }
 
 void readLinkedList(CD* cd) {
 
 }
 
+/*
+
+            DATA FUNCS
+
+*/
 
 
 CD* loadData() {
     dataFile.open("data.txt");
-    CD* newCD = new CD;
-    
-    string stg;
+    CD* root = new CD;
 
-    int id;
-    string prod;
-    string name;
-    float sizeMB;
-    float price;
-
-    while (!dataFile.eof()){
+    while(!dataFile.eof()){
+        CD* newCD = new CD;
         streamsize maxChar = 256; 
         char* line = new char[maxChar];
         char delimChar = ';';
 
         // ID
         dataFile.getline(line, maxChar, delimChar);
-        cout << line << endl;
-        id = stoi(line);
+        // eof este declarat doar in urma unui get sau getline
+        if (dataFile.eof()) {
+            break;
+        }
+        newCD->id = stoi(line);
 
         // PRODUCATOR
         dataFile.getline(line, maxChar, delimChar);
-        cout << line << endl;
-        prod = line;
+        newCD->prod = line;
 
         // NUME CD
         dataFile.getline(line, maxChar, delimChar);
-        cout << line << endl;
-        name = line;
+        newCD->name = line;
 
         // MARIME MB
         dataFile.getline(line, maxChar, delimChar);
-        cout << line << endl;
-        sizeMB = stof(line);
+        newCD->sizeMB = stof(line);
 
         // PRET
         dataFile.getline(line, maxChar, delimChar);
-        cout << line << endl;
-        price = stof(line);
+        newCD->price = stof(line);
 
-        // CREAZA OBIECT
-        newCD->id = id;
-        newCD->prod = prod;
-        newCD->name = name;
-        newCD->sizeMB = sizeMB;
-        newCD->price = price;
-
-        addToLinkedList(newCD);
+        addToLinkedList(root, newCD);
         delete[] line;
     }
 
+    cout << "Done loading data" << endl;
     dataFile.close();
-    return newCD;
+    return root;
 }
 
 void storeData(CD cd) {
     dataFile.open("data.txt", ios::app);
     // scrie date la sfarsitul fisierului sub formatul : 0;x;x;1024;50;
-    dataFile << cd.id << ";" << cd.prod << ";" << cd.name << ";" << cd.sizeMB << ";" << cd.price << ";";
+    dataFile << ";" << cd.id << ";" << cd.prod << ";" << cd.name << ";" << cd.sizeMB << ";" << cd.price;
     dataFile.close();
 }
+
+/*
+
+            DISPLAY FUNCS
+
+*/
 
 void dispalyLinkedList(CD* cd) {
     CD* curr = cd->head;
@@ -133,30 +141,36 @@ void dispalyLinkedList(CD* cd) {
 
 
     while (curr->next != nullptr) {
+        if (curr->id != -1) {
+            cout << left << setw(FIELD1W) << curr->id << left << setw(FIELD2W) << curr->prod << left << setw(FIELD3W) << curr->name << left << setw(FIELD4W) << curr->sizeMB << left << setw(FIELD5W) << curr->price << endl;
+        }
         past = curr;
         curr = curr->next;
     }
 }
 
-void displayMain() {
-    cout.fill('#');
-    cout.width(120);
-    cout << '#' << endl;
+void displayMain(CD* cdData) {
+    //cout.fill('#');
+    //cout.width(120);
+   // cout << '#' << endl;
+
+    cout << left << setw(FIELD1W) << "ID" << left << setw(FIELD2W) << "PRODUCATOR" << left << setw(FIELD3W) << "NUME JOC" << left << setw(FIELD4W) << "MARIME (MB)" << left << setw(FIELD5W) << "PRET" << endl;
+    cout.fill('-');
+    cout.width(180);
+    cout << "-" << endl;
+    cout << setfill(' ');
+    dispalyLinkedList(cdData);
 
 
 
-
-
-
-
-    cout.fill('#');
-    cout.width(120);
-    cout << '#';
+    //cout.fill('#');
+   // cout.width(120);
+    //cout << '#';
 }
 
 int main()
 {
     CD* cdData = loadData();
-    displayMain();
+    displayMain(cdData);
 }
 
