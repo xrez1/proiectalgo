@@ -1,8 +1,10 @@
 #include <iostream>
+#include <iomanip>
 #include <string>
 #include <fstream>
 #include <format>
 #include <vector>
+#include <display.h>
 using namespace std;
 
 /*
@@ -22,6 +24,12 @@ o functie pentru fiecare dintre urmatoarele prob.
 */
 
 fstream dataFile;
+
+#define FIELD1W  10
+#define FIELD2W  256
+#define FIELD3W  256
+#define FIELD4W  10
+#define FIELD5W  10
 
 struct CD {
     int id = -1;
@@ -51,47 +59,67 @@ void addToLinkedList(CD* cd) {
     }
 }
 
+void readLinkedList(CD* cd) {
+
+}
+
+void dispalyLinkedList(CD* cd) {
+    CD* curr = cd->head;
+    CD* past = cd->head;
+
+
+    while (curr->next != nullptr) {
+        past = curr;
+        curr = curr->next;
+    }
+}
+
+
 void loadData() {
     dataFile.open("data.txt");
     
-    char ch;
+    string stg;
 
     int id;
     string prod;
     string name;
-    double sizeMB;
-    double price;
+    float sizeMB;
+    float price;
 
     while (dataFile){
         for (int i = 0; i < 6; i++) {
-            vector<char> word;
+            CD* newCD = new CD;
+
+            streamsize maxChar = 256; 
+            char* line = new char[maxChar];
+            char delimChar = ';';
+
             switch (i){
             case 0:                         // ID
-                ch = dataFile.get();
-                while (ch != ';') {
-                    word.push_back(ch);
-                }
+                dataFile.getline(line, maxChar, delimChar);
+                id = stoi(line);
             case 1:                         // PRODUCATOR
-                ch = dataFile.get();
-                while (ch != ';') {
-                    word.push_back(ch);
-                }
+                dataFile.getline(line, maxChar, delimChar);
+                prod = line;
             case 2:                         // NUME CD
-                ch = dataFile.get();
-                while (ch != ';') {
-                    word.push_back(ch);
-                }
+                dataFile.getline(line, maxChar, delimChar);
+                name = line;
             case 3:                         // MARIME MB
-                ch = dataFile.get();
-                while (ch != ';') {
-                    word.push_back(ch);
-                }
+                dataFile.getline(line, maxChar, delimChar);
+                sizeMB = stof(line);
             case 4:                         // PRET
-                ch = dataFile.get();
-                while (ch != ';') {
-                    word.push_back(ch);
-                }
+                dataFile.getline(line, maxChar, delimChar);
+                price = stof(line);
             case 5:                         // CREAZA OBIECT
+                newCD->id = id;
+                newCD->prod = prod;
+                newCD->name = name;
+                newCD->sizeMB = sizeMB;
+                newCD->price = price;
+
+                addToLinkedList(newCD);
+                delete[] line;
+                dataFile.close();
             default:
                 break;
             }
@@ -106,14 +134,24 @@ void storeData(CD cd) {
     dataFile.close();
 }
 
-void display() {
+void displayMain() {
+    cout.fill('#');
+    cout.width(120);
+    cout << '#' << endl;
 
+
+
+
+
+
+
+    cout.fill('#');
+    cout.width(120);
+    cout << '#';
 }
 
 int main()
 {
-
-
-
+    displayMain();
 }
 
