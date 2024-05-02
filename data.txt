@@ -1,1 +1,1 @@
-99999999;NumeProd;NumeCD;1024;20;1;NumeProd;NumeCD;1024;20;2;NumeProd;NumeCD;1024;20;3;NumeProd;NumeCD;1024;20
+1;Mojang;Minecraft;650;139.57;2;Nintendo;The Legend of Zelda: Breath of the Wild;13400;279.19;3;Mossmouth;Spelunky;200;74.59;3;FromSoftware;DARK SOULS™: REMASTERED;8000;198.99

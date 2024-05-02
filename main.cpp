@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stdlib.h> 
 #include <iomanip>
 #include <string>
 #include <fstream>
@@ -27,8 +28,16 @@ fstream dataFile;
 #define FIELD1W  10
 #define FIELD2W  50
 #define FIELD3W  50
-#define FIELD4W  10
+#define FIELD4W  25
 #define FIELD5W  10
+#define SPACERW  1
+#define OPTFIELD 15
+//State defines
+#define STATE_MAIN 0
+#define STATE_SEARCH 1
+#define STATE_FILTER 2
+#define STATE_SORT 2
+#define STATE_MANIPULATE 3 //addition/removal etc..
 
 /*
 
@@ -142,30 +151,32 @@ void dispalyLinkedList(CD* cd) {
 
     while (curr->next != nullptr) {
         if (curr->id != -1) {
-            cout << left << setw(FIELD1W) << curr->id << left << setw(FIELD2W) << curr->prod << left << setw(FIELD3W) << curr->name << left << setw(FIELD4W) << curr->sizeMB << left << setw(FIELD5W) << curr->price << endl;
+            cout << left << setw(FIELD1W) << curr->id << setw(SPACERW) << " " << left << setw(FIELD2W) << curr->prod << setw(SPACERW) << " " << left << setw(FIELD3W) << curr->name << setw(SPACERW) << " " << left << setw(FIELD4W) << curr->sizeMB << setw(SPACERW) << " " << right << setw(FIELD5W) << setfill('.') << curr->price << setw(SPACERW) << " " << setfill(' ') << endl;
         }
         past = curr;
         curr = curr->next;
     }
 }
 
-void displayMain(CD* cdData) {
-    //cout.fill('#');
-    //cout.width(120);
-   // cout << '#' << endl;
-
-    cout << left << setw(FIELD1W) << "ID" << left << setw(FIELD2W) << "PRODUCATOR" << left << setw(FIELD3W) << "NUME JOC" << left << setw(FIELD4W) << "MARIME (MB)" << left << setw(FIELD5W) << "PRET" << endl;
+void horizontalLine() {
     cout.fill('-');
     cout.width(180);
     cout << "-" << endl;
     cout << setfill(' ');
+}
+
+void displayMain(CD* cdData) {
+
+    system("cls"); // clear screen
+
+    cout << left << setw(FIELD1W) << "ID" << setw(SPACERW) << " " << left << setw(FIELD2W) << "PRODUCATOR" << setw(SPACERW) << " " << left << setw(FIELD3W) << "NUME JOC" << setw(SPACERW) << " " << left << setw(FIELD4W) << "MARIME (MB)" << setw(SPACERW) << " " << left << setw(FIELD5W) << "PRET (LEI)" << setw(SPACERW) << " " << endl;
+
+    horizontalLine();
     dispalyLinkedList(cdData);
+    horizontalLine();
 
-
-
-    //cout.fill('#');
-   // cout.width(120);
-    //cout << '#';
+    cout << left << setw(OPTFIELD) << "1. ADD/REMOVE" << setw(SPACERW) << " " << left << setw(OPTFIELD) << "2. SEARCH" << setw(SPACERW) << " " << left << setw(OPTFIELD) << "3. FILTER" << setw(SPACERW) << " " << left << setw(OPTFIELD) << "4. SORT" << setw(SPACERW) << " " << endl;
+    getchar();
 }
 
 int main()
