@@ -60,6 +60,7 @@ struct CD {
 void addToLinkedList(CD* root, CD* cd) {
     CD* curr = root;
     CD* past = root;
+
     if (root->head != root) {
         root->head = root;
     }
@@ -72,13 +73,28 @@ void addToLinkedList(CD* root, CD* cd) {
         curr = curr->next;
     }
 
+    if (cd->id == -2) { //autoindex
+        cd->id = curr->id + 1;
+    }
+
     curr->next = cd;
     curr->prev = past;
-   
+    cd->prev = curr;
 }
 
-void readLinkedList(CD* cd) {
+void removeFromLinkedList(CD* root, int id) {
+    CD* curr = root;
+    CD* past = root;
 
+    while (curr->id != id) {
+        past = curr;
+        curr = curr->next;
+    }
+    
+    curr->prev->next = curr->next;
+    curr->next->prev = curr->prev;
+    
+    delete curr;
 }
 
 /*
@@ -91,50 +107,49 @@ void readLinkedList(CD* cd) {
 CD* loadData() {
     dataFile.open("data.txt");
     CD* root = new CD;
+    string wholeLine;
 
-    while(!dataFile.eof()){
+    while(getline(dataFile, wholeLine)){
         CD* newCD = new CD;
-        streamsize maxChar = 256; 
-        char* line = new char[maxChar];
+        string currentLine;
         char delimChar = ';';
-
+        size_t lastPos = wholeLine.find_first_of(";");
         // ID
-        dataFile.getline(line, maxChar, delimChar);
-        // eof este declarat doar in urma unui get sau getline
-        if (dataFile.eof()) {
-            break;
-        }
-        newCD->id = stoi(line);
+        currentLine = wholeLine.substr(0, lastPos);
+        lastPos = wholeLine.find_first_of(";", lastPos);
+        newCD->id = stoi(currentLine);
 
         // PRODUCATOR
-        dataFile.getline(line, maxChar, delimChar);
-        newCD->prod = line;
+        currentLine = wholeLine.substr(lastPos += 1, wholeLine.find_first_of(delimChar, lastPos) - lastPos);
+        lastPos = wholeLine.find_first_of(delimChar, lastPos);
+        newCD->prod = currentLine;
 
         // NUME CD
-        dataFile.getline(line, maxChar, delimChar);
-        newCD->name = line;
+        currentLine = wholeLine.substr(lastPos += 1, wholeLine.find_first_of(delimChar, lastPos) - lastPos);
+        lastPos = wholeLine.find_first_of(delimChar, lastPos);
+        newCD->name = currentLine;
 
         // MARIME MB
-        dataFile.getline(line, maxChar, delimChar);
-        newCD->sizeMB = stof(line);
+        currentLine = wholeLine.substr(lastPos += 1, wholeLine.find_first_of(delimChar, lastPos) - lastPos);
+        lastPos = wholeLine.find_first_of(delimChar, lastPos);
+        newCD->sizeMB = stod(currentLine);
 
         // PRET
-        dataFile.getline(line, maxChar, delimChar);
-        newCD->price = stof(line);
+        currentLine = wholeLine.substr(lastPos += 1, wholeLine.find_first_of(delimChar, lastPos) - lastPos);
+        lastPos = wholeLine.find_first_of(delimChar, lastPos);
+        newCD->price = stod(currentLine);
 
         addToLinkedList(root, newCD);
-        delete[] line;
     }
 
-    cout << "Done loading data" << endl;
     dataFile.close();
     return root;
 }
 
-void storeData(CD cd) {
+void storeData(CD* cd) {
     dataFile.open("data.txt", ios::app);
     // scrie date la sfarsitul fisierului sub formatul : 0;x;x;1024;50;
-    dataFile << ";" << cd.id << ";" << cd.prod << ";" << cd.name << ";" << cd.sizeMB << ";" << cd.price;
+    dataFile<< "\n" << cd->id << ";" << cd->prod << ";" << cd->name << ";" << cd->sizeMB << ";" << cd->price;
     dataFile.close();
 }
 
@@ -156,6 +171,7 @@ void dispalyLinkedList(CD* cd) {
         past = curr;
         curr = curr->next;
     }
+    cout << left << setw(FIELD1W) << curr->id << setw(SPACERW) << " " << left << setw(FIELD2W) << curr->prod << setw(SPACERW) << " " << left << setw(FIELD3W) << curr->name << setw(SPACERW) << " " << left << setw(FIELD4W) << curr->sizeMB << setw(SPACERW) << " " << right << setw(FIELD5W) << setfill('.') << curr->price << setw(SPACERW) << " " << setfill(' ') << endl;
 }
 
 void getState() {
@@ -213,7 +229,8 @@ void displaySearch(CD* cdData) {
     
     int cdCount = 0;
     string searchString;
-    cin >> searchString;
+    cin.ignore();
+    getline(cin, searchString);
 
     if (searchString == "") {
         displayMain(cdData);
@@ -342,7 +359,56 @@ void displayFilter(CD* cdData) {
 
 void displayManipulate(CD* cdData) {
     system("cls");
-    cout << "MANIPULATION";
+    cout << "MANIPULATION" << endl;
+    cout << left << setw(OPTFIELD) << "1. ADD" << left << setw(OPTFIELD) << "2. REMOVE" << endl;
+
+    int choice = 0;
+    cin >> choice;
+
+    if (choice == 1) {
+        CD* newUserCD = new CD;
+        newUserCD->id = -2;
+
+        string prod;
+        string name;
+        double sizeMB;
+        double price;
+
+        cout << "Enter CD producer" << endl;
+        cin.ignore();
+        getline(cin, prod);
+        cout << "Enter CD name" << endl;
+        getline(cin, name);
+        cout << "Enter CD size" << endl;
+        cin >> sizeMB;
+        cout << "Enter CD price" << endl;
+        cin >> price;
+        
+        newUserCD->prod = prod;
+        newUserCD->name = name;
+        newUserCD->sizeMB = sizeMB;
+        newUserCD->price = price;
+
+        addToLinkedList(cdData, newUserCD);
+        storeData(newUserCD);
+    }
+    else if (choice == 2) { // does not remove from data file
+        cout << "Enter ID of the item to remove" << endl;
+        int idToRemove;
+        cin >> idToRemove;
+        if (idToRemove < 0) {
+            cout << "ID must be 0 or above" << endl;
+        }
+        else {
+            removeFromLinkedList(cdData, idToRemove);
+        }
+    }
+    else {
+        displayMain(cdData);
+    }
+    horizontalLine();
+    displayOptions();
+
     getState();
 }
 

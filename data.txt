@@ -1,1 +1,10 @@
-1;Mojang;Minecraft;650;139.57;2;Nintendo;The Legend of Zelda: Breath of the Wild;13400;279.19;3;Mossmouth;Spelunky;200;74.59;4;FromSoftware;DARK SOULS: REMASTERED;8000;198.99;5;Mojang;Minecraft;650;139.57;6;Mojang;Minecraft;650;139.57;7;Mojang;Minecraft;650;139.57;8;Mojang;Minecraft;650;139.57;
+1;Mojang;Minecraft;650;139.57
+2;Nintendo;The Legend of Zelda: Breath of the Wild;13400;279.19
+3;Mossmouth;Spelunky;200;74.59
+4;FromSoftware;DARK SOULS: REMASTERED;8000;198.99
+5;Mojang;Minecraft;650;139.57
+6;Mojang;Minecraft;650;139.57
+7;Mojang;Minecraft;650;139.57
+8;Mojang;Minecraft;650;139.57
+9;Square Enix;Final Fantasy VII;1500;300
+10;Supergiant Games;Hades 2;10000;150
