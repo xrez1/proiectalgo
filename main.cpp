@@ -27,17 +27,17 @@ fstream dataFile;
 //Defines for table dispaly widths
 #define FIELD1W  10
 #define FIELD2W  50
-#define FIELD3W  50
-#define FIELD4W  25
+#define FIELD3W  75
+#define FIELD4W  30
 #define FIELD5W  10
 #define SPACERW  1
 #define OPTFIELD 15
 //State defines
 #define STATE_MAIN 0
-#define STATE_SEARCH 1
-#define STATE_FILTER 2
-#define STATE_SORT 2
-#define STATE_MANIPULATE 3 //addition/removal etc..
+#define STATE_MANIPULATE 1 //addition/removal etc..
+#define STATE_SEARCH 2
+#define STATE_FILTER 3
+int currentState = 0;
 
 /*
 
@@ -158,6 +158,24 @@ void dispalyLinkedList(CD* cd) {
     }
 }
 
+void getState() {
+    int newstate;
+    cout << endl;
+    cin >> newstate;
+    if (newstate == 0) {
+        currentState = STATE_MAIN;
+    }
+    else if (newstate == 1) {
+        currentState = STATE_MANIPULATE;
+    }
+    else if (newstate == 2) {
+        currentState = STATE_SEARCH;
+    }
+    else if (newstate == 3) {
+        currentState = STATE_FILTER;
+    }
+}
+
 void horizontalLine() {
     cout.fill('-');
     cout.width(180);
@@ -165,23 +183,185 @@ void horizontalLine() {
     cout << setfill(' ');
 }
 
-void displayMain(CD* cdData) {
-
-    system("cls"); // clear screen
-
+void displayFieldHeaders() {
     cout << left << setw(FIELD1W) << "ID" << setw(SPACERW) << " " << left << setw(FIELD2W) << "PRODUCATOR" << setw(SPACERW) << " " << left << setw(FIELD3W) << "NUME JOC" << setw(SPACERW) << " " << left << setw(FIELD4W) << "MARIME (MB)" << setw(SPACERW) << " " << left << setw(FIELD5W) << "PRET (LEI)" << setw(SPACERW) << " " << endl;
 
+}
+void displayOptions() {
+    cout << left << setw(OPTFIELD) << "1. ADD/REMOVE" << setw(SPACERW) << " " << left << setw(OPTFIELD) << "2. SEARCH" << setw(SPACERW) << left << setw(OPTFIELD) << "3. FILTER" << setw(SPACERW) << " " << left << setw(OPTFIELD) << "0. MAIN" << endl;
+}
+
+void displayLinkedListCurrent(CD* curr){
+    cout << left << setw(FIELD1W) << curr->id << setw(SPACERW) << " " << left << setw(FIELD2W) << curr->prod << setw(SPACERW) << " " << left << setw(FIELD3W) << curr->name << setw(SPACERW) << " " << left << setw(FIELD4W) << curr->sizeMB << setw(SPACERW) << " " << right << setw(FIELD5W) << setfill('.') << curr->price << setw(SPACERW) << " " << setfill(' ') << endl;
+}
+
+void displayMain(CD* cdData) {
+    system("cls"); // clear screen
+
+    displayFieldHeaders();
     horizontalLine();
     dispalyLinkedList(cdData);
     horizontalLine();
-
-    cout << left << setw(OPTFIELD) << "1. ADD/REMOVE" << setw(SPACERW) << " " << left << setw(OPTFIELD) << "2. SEARCH" << setw(SPACERW) << " " << left << setw(OPTFIELD) << "3. FILTER" << setw(SPACERW) << " " << left << setw(OPTFIELD) << "4. SORT" << setw(SPACERW) << " " << endl;
-    getchar();
+    displayOptions();
+    getState();
 }
 
-int main()
-{
+void displaySearch(CD* cdData) {
+    system("cls");
+    cout << "SEARCH" << endl;
+    cout << "Enter string to search or leave empty to return" << endl;
+    
+    int cdCount = 0;
+    string searchString;
+    cin >> searchString;
+
+    if (searchString == "") {
+        displayMain(cdData);
+    }
+    else{
+        displayFieldHeaders();
+        horizontalLine();
+        CD* curr = cdData->head;
+        CD* past = cdData->head;
+        while (curr->next != nullptr) {
+            if (curr->name == searchString) {
+                displayLinkedListCurrent(curr);
+                cdCount++;
+            }
+            past = curr;
+            curr = curr->next;
+        }
+        cout << "Found " << cdCount << "CDs in stock." << endl;
+        horizontalLine();
+        displayOptions();
+
+        getState();
+    }
+}
+
+void displayFilter(CD* cdData) {
+    system("cls");
+    cout << "FILTER" << endl;
+    cout << "1. BY SIZE" << endl;
+
+    int choice = 0;
+    cin >> choice;
+    if (choice == 1) {
+        cout << "Enter a comparison sign (<, = or >) and then the size (ex. <200) or enter : between two numbers for a range (ex. 250:600). Leave blank to return" << endl;
+        string userFilter;
+        string compareSign;
+        double size;
+        cin >> userFilter;
+
+        displayFieldHeaders();
+        horizontalLine();
+
+        // string::npos is the return value of .find if it can't find the string
+        if (userFilter.find("<") != string::npos) {
+            string substring = userFilter.substr(userFilter.find("<") + 1, userFilter.length());
+            size = stod(substring);
+
+            CD* curr = cdData->head;
+            CD* past = cdData->head;
+            while (curr->next != nullptr) {
+                if (curr->sizeMB < size && curr->id != -1) {
+                    displayLinkedListCurrent(curr);
+                }
+                past = curr;
+                curr = curr->next;
+            }
+        }
+        else if (userFilter.find("=") != string::npos) {
+            string substring = userFilter.substr(userFilter.find("=") + 1, userFilter.length());
+            size = stod(substring);
+
+            CD* curr = cdData->head;
+            CD* past = cdData->head;
+            while (curr->next != nullptr) {
+                if (curr->sizeMB == size && curr->id != -1) {
+                    displayLinkedListCurrent(curr);
+                }
+                past = curr;
+                curr = curr->next;
+            }
+        }
+        else if (userFilter.find(">") != string::npos){
+            string substring = userFilter.substr(userFilter.find(">") + 1, userFilter.length());
+            size = stod(substring);
+
+            CD* curr = cdData->head;
+            CD* past = cdData->head;
+            while (curr->next != nullptr) {
+                if (curr->sizeMB > size && curr->id != -1) {
+                    displayLinkedListCurrent(curr);
+                }
+                past = curr;
+                curr = curr->next;
+            }
+        }
+        else if (userFilter.find(":") != string::npos) {
+            double size2 = 0;
+            string substring1 = userFilter.substr(0, userFilter.find(":"));
+            string substring2 = userFilter.substr(userFilter.find(":") + 1, userFilter.length());
+
+            size = stod(substring1);
+            size2 = stod(substring2);
+
+            if (size > size2) {
+                cout << "First number must be lower then second." << endl;
+                horizontalLine();
+                displayOptions();
+
+                getState();
+            }
+
+            CD* curr = cdData->head;
+            CD* past = cdData->head;
+            while (curr->next != nullptr) {
+                if (size <= curr->sizeMB && curr->sizeMB <= size2 && curr->id != -1) {
+                    displayLinkedListCurrent(curr);
+                }
+                past = curr;
+                curr = curr->next;
+            }
+        }
+        else {
+            displayMain(cdData);
+        }
+
+    }
+    else {
+        displayMain(cdData);
+    }
+
+    horizontalLine();
+    displayOptions();
+
+    getState();
+}
+
+void displayManipulate(CD* cdData) {
+    system("cls");
+    cout << "MANIPULATION";
+    getState();
+}
+
+
+int main(){   
     CD* cdData = loadData();
-    displayMain(cdData);
-}
 
+    while (currentState != -1) {
+        if (currentState == 0) {
+            displayMain(cdData);
+        }
+        else if (currentState == 1) {
+            displayManipulate(cdData);
+        }
+        else if (currentState == 2) {
+            displaySearch(cdData);
+        }
+        else if (currentState == 3) {
+            displayFilter(cdData);
+        }
+    }
+}
